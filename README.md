@@ -1,84 +1,77 @@
-# Aurora Hotel — Management & Booking (Demo)
+# HarborView Hotel – Responsive Hotel Management Website
 
-A single-page hotel management website built with HTML, CSS, and vanilla JavaScript. It provides a guest-facing booking flow with live availability and a lightweight admin dashboard to view and manage bookings. All data is stored locally in your browser via localStorage/sessionStorage, making this an offline-friendly demo suitable for prototypes and educational use.
+A responsive hotel website with an integrated (demo) admin panel. Guests can browse featured rooms, check availability, and create reservation requests. The admin panel provides authentication, dashboard metrics, room management (CRUD), and booking management.
 
-Note: This is not production software. There is no backend or payment processing.
+Note: This is a front‑end only demo using localStorage for data persistence. For production, replace localStorage with a backend (API + database) and proper authentication.
 
 ## Features
 
-- Guest booking form with:
-  - Room type selection, date range, guests
-  - Live availability check across rooms
-  - Price estimator with taxes
-  - Automatic room assignment on confirmation
-- Rooms catalog with filters and live “Available/Occupied today” status
-- Admin dashboard (client-side) with:
-  - Stats: total rooms, available/occupied today, check-ins today
-  - Bookings table with view and cancel actions
-  - Export all data to JSON
-  - Clear all bookings (in this browser)
-- Accessible, responsive UI
-- No dependencies, no build step
+Guest website
+- Fully responsive layout (mobile, tablet, desktop)
+- Featured rooms showcase
+- Availability search by date, guests, and room type
+- Create booking requests with auto‑calculated estimated total
+- Embedded contact details and map
 
-## Getting started
+Admin panel
+- Demo login (default admin/password)
+- Dashboard with key metrics and recent bookings
+- Manage rooms (add, edit, delete)
+- Manage bookings (confirm, cancel, delete)
+- Change admin password (stored in localStorage for demo)
 
-1. Download or clone this repository.
-2. Open `index.html` in any modern web browser.
-3. Try the booking flow in the “Book your stay” section.
-4. Unlock the admin dashboard to view/manage bookings.
+Tech
+- HTML5, CSS3, Vanilla JavaScript
+- No build tooling required
+- Data stored in browser localStorage
 
-Admin PIN: `4242`
+## Quick start
 
-The admin unlock persists for the current tab session.
+1. Download the project files.
+2. Open index.html in your browser.
+   - For best results, serve over a local server (some browsers restrict localStorage/file access from file://).
+   - You can use: npx serve . or python3 -m http.server 8080
+3. Navigate to the Admin panel:
+   - URL: /admin/index.html
+   - Login with:
+     - Username: admin
+     - Password: password
 
-## Data model
+## Project structure
 
-- Rooms (seeded on first load):
-  - id: string (e.g., "101")
-  - type: "Standard" | "Deluxe" | "Suite"
-  - capacity: number
-  - rate: number (per-night USD)
-- Bookings:
-  - id: generated reference
-  - guest: { name, email, phone }
-  - roomId, type, guests
-  - checkIn (YYYY-MM-DD), checkOut (YYYY-MM-DD) — end-exclusive
-  - nights, rate, taxRate, total
-  - status: "confirmed" | "cancelled"
-  - createdAt: ISO timestamp
+- index.html — Guest‑facing website (home, rooms, booking, contact)
+- admin/index.html — Admin panel (login + app)
+- styles.css — Shared responsive styles
+- app.js — Guest site logic (seeding data, availability search, booking creation)
+- admin.js — Admin logic (auth, dashboard, CRUD)
+- logo.svg — Site favicon/logo
 
-Local storage keys:
-- `hm_rooms_v1` — rooms array
-- `hm_bookings_v1` — bookings array
-- `hm_admin_session_v1` — session flag in sessionStorage
+## Data model (localStorage)
 
-## How availability works
+- hm_rooms: Array of rooms
+  - { id, name, type: "standard"|"deluxe"|"suite", price, capacity, amenities[], image }
+- hm_bookings: Array of bookings
+  - { id, roomId, roomName, guestName, email, phone, checkIn, checkOut, guests, status: "pending"|"confirmed"|"cancelled", createdAt, total }
+- hm_admin: { username, password, updatedAt }
+- hm_session: { username, loginAt } — simple session indicator for admin
 
-- A booking occupies a room for the date range `[checkIn, checkOut)`.
-- Two bookings overlap if their date ranges overlap (end-exclusive).
-- “Occupied today” means there exists a confirmed booking whose range overlaps the range `[today, tomorrow)`.
+## Availability logic
 
-## Customizing
+A room is considered unavailable when there exists a non‑cancelled booking with overlapping date ranges. Overlap is calculated on [start, end) basis (check‑out is not counted as an occupied night).
 
-- Edit the seeded rooms in `seedRooms()` within `index.html` to change room inventory, rates, and types.
-- Adjust tax rate via `TAX_RATE` constant.
-- Change the admin PIN with `ADMIN_PIN` constant.
+## Customization
 
-## Limitations
+- Rooms: Add/edit via Admin → Rooms
+- Pricing/capacity/amenities: Editable per room
+- Branding: Replace logo.svg and update colors in styles.css
+- Hero/imagery: Update background images in index.html and room image URLs (Unsplash used by default)
 
-- Client-side only: no server, no real authentication, no payments.
-- Multiple users do not share state; data is per-browser.
-- No seasonal pricing, promotions, or advanced policies.
-- This demo does not validate government regulations, PCI, or GDPR requirements.
+## Notes and limitations
 
-## Development notes
-
-- The project is intentionally single-file for easy distribution (HTML includes all CSS/JS).
-- No external fonts or libraries are used.
-- Lightweight date handling:
-  - Dates are treated at local noon to avoid DST edge cases when calculating nights.
-  - Check-out is end-exclusive.
+- This demo uses localStorage. Clearing site data will reset rooms/bookings.
+- There is no email integration; confirmation is manual via admin UI.
+- Authentication is simplistic and should be replaced with server‑side auth in real deployments.
 
 ## License
 
-MIT — do what you want, but without warranty.
+This project is provided as‑is for demo and educational use. Replace assets and implement backend security for production use.

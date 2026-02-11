@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Panel | HarborView Hotel</title>
+  <link rel="icon" href="../logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="../styles.css" />
+  <script defer src="../admin.js"></script>
+</head>
+<body class="admin-body">
+  <header class="site-header admin-header">
+    <div class="container header-inner">
+      <a href="../index.html" class="brand">
+        <img src="../logo.svg" alt="HarborView Hotel Logo" class="brand-logo" />
+        <span class="brand-name">HarborView Admin</span>
+      </a>
+      <div class="admin-user">
+        <span id="adminUserLabel" class="muted"></span>
+        <button id="logoutBtn" class="btn btn-small btn-outline" hidden>Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <div class="container admin-container">
+
+      <section id="loginView" class="card max-500">
+        <h2>Admin Login</h2>
+        <form id="loginForm" class="form-vertical">
+          <div class="form-field">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" placeholder="admin" required />
+          </div>
+          <div class="form-field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" placeholder="password" required />
+          </div>
+          <button class="btn btn-primary" type="submit">Sign In</button>
+          <p class="muted small">Default credentials: admin / password (demo only)</p>
+        </form>
+      </section>
+
+      <section id="appView" class="admin-app" hidden>
+        <aside class="admin-sidebar">
+          <nav class="admin-nav">
+            <button class="admin-tab active" data-tab="dashboard">Dashboard</button>
+            <button class="admin-tab" data-tab="rooms">Rooms</button>
+            <button class="admin-tab" data-tab="bookings">Bookings</button>
+            <button class="admin-tab" data-tab="settings">Settings</button>
+          </nav>
+        </aside>
+
+        <section class="admin-content">
+          <!-- Dashboard -->
+          <div id="tab-dashboard" class="tab-panel active">
+            <h2>Dashboard</h2>
+            <div class="stats-grid">
+              <div class="stat">
+                <div class="stat-label">Total Rooms</div>
+                <div class="stat-value" id="statTotalRooms">0</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">Available Today</div>
+                <div class="stat-value" id="statAvailableToday">0</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">Total Bookings</div>
+                <div class="stat-value" id="statTotalBookings">0</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">Upcoming Check-ins</div>
+                <div class="stat-value" id="statUpcoming">0</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3>Recent Bookings</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Guest</th>
+                      <th>Room</th>
+                      <th>Check-in</th>
+                      <th>Check-out</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recentBookings"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rooms -->
+          <div id="tab-rooms" class="tab-panel">
+            <div class="panel-head">
+              <h2>Rooms</h2>
+              <button id="addRoomBtn" class="btn btn-primary">Add Room</button>
+            </div>
+
+            <div id="roomFormWrap" class="card" hidden>
+              <h3 id="roomFormTitle">Add Room</h3>
+              <form id="roomForm" class="form-grid">
+                <input type="hidden" id="roomId" />
+                <div class="form-field">
+                  <label for="roomName">Name</label>
+                  <input id="roomName" type="text" placeholder="Ocean View Deluxe" required />
+                </div>
+                <div class="form-field">
+                  <label for="roomType">Type</label>
+                  <select id="roomType" required>
+                    <option value="standard">Standard</option>
+                    <option value="deluxe">Deluxe</option>
+                    <option value="suite">Suite</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="roomPrice">Price (USD / night)</label>
+                  <input id="roomPrice" type="number" min="1" step="1" placeholder="150" required />
+                </div>
+                <div class="form-field">
+                  <label for="roomCapacity">Capacity</label>
+                  <input id="roomCapacity" type="number" min="1" max="8" step="1" placeholder="2" required />
+                </div>
+                <div class="form-field">
+                  <label for="roomAmenities">Amenities (comma separated)</label>
+                  <input id="roomAmenities" type="text" placeholder="WiFi, Breakfast, TV" />
+                </div>
+                <div class="form-field">
+                  <label for="roomImage">Image URL</label>
+                  <input id="roomImage" type="url" placeholder="https://images.example/room.jpg" />
+                </div>
+                <div class="form-actions">
+                  <button class="btn btn-primary" type="submit" id="saveRoomBtn">Save</button>
+                  <button class="btn btn-outline" type="button" id="cancelRoomBtn">Cancel</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="card">
+              <h3>All Rooms</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Capacity</th>
+                      <th>Price</th>
+                      <th>Amenities</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="roomsTable"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bookings -->
+          <div id="tab-bookings" class="tab-panel">
+            <div class="panel-head">
+              <h2>Bookings</h2>
+              <div class="inline-actions">
+                <label class="muted small">Filter</label>
+                <select id="bookingFilter">
+                  <option value="">All</option>
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
+            <div class="card">
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Guest</th>
+                      <th>Room</th>
+                      <th>Guests</th>
+                      <th>Check-in</th>
+                      <th>Check-out</th>
+                      <th>Status</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="bookingsTable"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Settings -->
+          <div id="tab-settings" class="tab-panel">
+            <h2>Settings</h2>
+            <div class="card max-500">
+              <h3>Change Password</h3>
+              <form id="passwordForm" class="form-vertical">
+                <div class="form-field">
+                  <label for="currentPassword">Current Password</label>
+                  <input id="currentPassword" type="password" required />
+                </div>
+                <div class="form-field">
+                  <label for="newPassword">New Password</label>
+                  <input id="newPassword" type="password" minlength="4" required />
+                </div>
+                <button class="btn btn-primary" type="submit">Update Password</button>
+              </form>
+            </div>
+          </div>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
