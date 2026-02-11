@@ -1,1 +1,842 @@
-<html><body><h1>Fallback App</h1><p>Create a hotel management website </p></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aurora Hotel — Management & Booking</title>
+  <meta name="description" content="Aurora Hotel: Book your stay and manage reservations. A demo hotel management website with booking and admin dashboard." />
+  <meta property="og:title" content="Aurora Hotel — Management & Booking" />
+  <meta property="og:description" content="Book rooms, check availability, and manage reservations in a simple in-browser demo." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#0f766e" />
+  <style>
+    :root{
+      --bg:#0b1212;
+      --panel:#0e1616;
+      --muted:#a7b3b0;
+      --text:#eaf3f1;
+      --primary:#0ea5a4;
+      --primary-600:#0f766e;
+      --accent:#f59e0b;
+      --danger:#ef4444;
+      --success:#10b981;
+      --card:#0f1919;
+      --border:#13302f;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 14px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1000px 600px at 80% -10%, rgba(14,165,164,.25), transparent 40%),
+        radial-gradient(1000px 600px at -10% 10%, rgba(245,158,11,.15), transparent 35%),
+        linear-gradient(180deg, #071010, #0a1111 30%, #0b1212 100%);
+      background-attachment: fixed;
+    }
+    a{color:inherit;text-decoration:none}
+    .container{max-width:1200px;margin:0 auto;padding:0 20px}
+    header.nav{
+      position:sticky;top:0;z-index:50;
+      background:rgba(10,17,17,.7);backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--border);
+    }
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 0;gap:16px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.3px}
+    .brand-badge{
+      width:34px;height:34px;border-radius:9px;display:grid;place-items:center;
+      background: conic-gradient(from 210deg, var(--primary), #36cfc9, #9ef7f0 60%, var(--primary) 100%);
+      color:#022; font-weight:800; box-shadow: 0 6px 14px rgba(14,165,164,.35) inset, 0 4px 20px rgba(0,0,0,.35);
+    }
+    nav ul{display:flex;gap:18px;list-style:none;margin:0;padding:0}
+    nav a{padding:8px 12px;border-radius:10px;color:var(--muted)}
+    nav a:hover{background:rgba(14,165,164,.12);color:var(--text)}
+    .cta{
+      background:linear-gradient(180deg, var(--primary), var(--primary-600));
+      border:0;color:#062; color:#032a28;
+      color: #072b2a;
+      color:#022; /* ensure contrast */
+      color:#012322;
+      padding:10px 14px;border-radius:12px;font-weight:700;box-shadow: 0 8px 20px rgba(14,165,164,.3);
+    }
+    .cta.book{color:#042726;background:linear-gradient(180deg, #34e6d1, #0ea5a4)}
+    .hero{
+      display:grid;grid-template-columns: 1.1fr .9fr;gap:24px;align-items:center;
+      padding:48px 0 28px;
+    }
+    .badge{
+      display:inline-flex;align-items:center;gap:10px;background:rgba(15,118,110,.18);
+      border:1px solid var(--border);padding:8px 12px;border-radius:999px;color:#aee;
+      font-size:14px
+    }
+    h1{font-size:48px;line-height:1.05;margin:16px 0 12px}
+    .lead{color:#cfe6e3;max-width:58ch}
+    .hero-card{
+      background:linear-gradient(180deg, rgba(14,165,164,.1), rgba(14,165,164,.04));
+      border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)
+    }
+    .grid{display:grid;gap:18px}
+    .grid.rooms{grid-template-columns: repeat(3, 1fr)}
+    .card{
+      background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;box-shadow:var(--shadow)
+    }
+    .room-media{
+      border-radius:12px;overflow:hidden;height:140px;display:grid;place-items:center;
+      background: radial-gradient(120% 120% at 10% 10%, rgba(245,158,11,.15), transparent 50%),
+                  radial-gradient(120% 120% at 90% 90%, rgba(14,165,164,.18), transparent 50%),
+                  #0a1414;
+      color:#cde;
+      border:1px solid var(--border);
+      font-weight:800;font-size:22px;letter-spacing:.5px
+    }
+    .badge-status{
+      display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;font-size:12px;
+      border:1px solid var(--border);background:rgba(255,255,255,.03)
+    }
+    .ok{color:#aef;background:rgba(16,185,129,.12);border-color:#1d4; }
+    .bad{color:#ffc6c6;background:rgba(239,68,68,.12);border-color:#933}
+    .filters{display:flex;gap:10px;flex-wrap:wrap}
+    .input, select, button, input{
+      font:inherit;color:inherit;background:#0a1414;border:1px solid var(--border);
+      border-radius:12px;padding:10px 12px
+    }
+    label{font-size:14px;color:#bcd}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .btn{
+      display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:#0b1515;color:#dff;cursor:pointer
+    }
+    .btn.primary{background:linear-gradient(180deg, #34e6d1, #0ea5a4);color:#042726;border-color:#0ea5a4}
+    .btn.warn{background:linear-gradient(180deg, #ffb84d, #f59e0b);color:#2a1600;border-color:#f59e0b}
+    .btn.ghost{background:transparent}
+    .btn.danger{background:linear-gradient(180deg, #ff8a88, #ef4444);border-color:#ef4444;color:#2a0000}
+    .section{padding:36px 0}
+    h2{font-size:28px;margin:0 0 12px}
+    .muted{color:var(--muted)}
+    .pill{display:inline-flex;gap:8px;align-items:center;padding:6px 10px;border:1px dashed var(--border);border-radius:999px;color:#bcd;font-size:12px}
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .est{
+      background:linear-gradient(180deg, rgba(245,158,11,.12), rgba(245,158,11,.06));
+      border:1px solid #3b2f1a;color:#ffecc7;border-radius:16px;padding:12px
+    }
+    table{width:100%;border-collapse:separate;border-spacing:0 8px}
+    th, td{padding:10px 12px;text-align:left}
+    thead th{color:#cfe6e3;font-weight:700;font-size:13px}
+    tbody tr{background:#0b1515;border:1px solid var(--border)}
+    tbody tr td:first-child{border-radius:12px 0 0 12px}
+    tbody tr td:last-child{border-radius:0 12px 12px 0}
+    .stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .stat{background:linear-gradient(180deg, rgba(14,165,164,.15), rgba(14,165,164,.05));border:1px solid var(--border);border-radius:16px;padding:12px}
+    .stat h3{margin:0 0 6px;font-size:14px;color:#aee}
+    .stat .val{font-size:22px;font-weight:800}
+    .footer{padding:26px 0;border-top:1px solid var(--border);margin-top:30px;color:#abc}
+    .sr-only{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
+    .admin-card{background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));border:1px dashed var(--border);border-radius:16px;padding:14px}
+    .hint{font-size:12px;color:#9ab}
+    .chip{display:inline-flex;align-items:center;gap:8px;font-size:12px;padding:4px 8px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.03)}
+    .notice{background:linear-gradient(180deg, rgba(14,165,164,.12), rgba(14,165,164,.05));border:1px solid var(--border);padding:10px;border-radius:12px;color:#cfe}
+    .success{color:#c7ffde}
+    .error{color:#ffd2d2}
+    @media (max-width: 980px){
+      .hero{grid-template-columns: 1fr}
+      .grid.rooms{grid-template-columns: repeat(2, 1fr)}
+      .split{grid-template-columns:1fr}
+      .stat-cards{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width: 560px){
+      h1{font-size:36px}
+      .grid.rooms{grid-template-columns: 1fr}
+      nav ul{display:none}
+    }
+  </style>
+</head>
+<body>
+  <a class="sr-only" href="#main">Skip to content</a>
+  <header class="nav">
+    <div class="container nav-inner">
+      <div class="brand">
+        <div class="brand-badge" aria-hidden="true">A</div>
+        <div>
+          <div style="font-weight:800">Aurora Hotel</div>
+          <div class="hint">Management & Booking</div>
+        </div>
+      </div>
+      <nav aria-label="Primary">
+        <ul>
+          <li><a href="#rooms">Rooms</a></li>
+          <li><a href="#amenities">Amenities</a></li>
+          <li><a href="#booking" class="pill"><span>Book</span> <span aria-hidden="true">→</span></a></li>
+          <li><a href="#admin">Admin</a></li>
+        </ul>
+      </nav>
+      <a href="#booking" class="cta book" aria-label="Book a room">Book now</a>
+    </div>
+  </header>
+
+  <main id="main" class="container">
+    <section class="hero" aria-labelledby="hero-title">
+      <div>
+        <div class="badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+          Awarded Best Boutique Stay 2026
+        </div>
+        <h1 id="hero-title">Stay inspired at the Aurora</h1>
+        <p class="lead">Wake to panoramic skyline views, unwind in generous suites, and enjoy concierge-level care. Check live availability and manage bookings directly below.</p>
+        <div class="row" style="margin-top:10px">
+          <a href="#booking" class="btn primary">Check availability</a>
+          <a href="#rooms" class="btn ghost">Explore rooms</a>
+        </div>
+      </div>
+      <div class="hero-card" aria-hidden="true">
+        <div class="grid" style="grid-template-columns:1fr 1fr">
+          <div class="card">
+            <div class="room-media">Deluxe • 201</div>
+            <div class="row" style="justify-content:space-between;margin-top:8px">
+              <span class="badge-status ok"><span aria-hidden="true">●</span> Available</span>
+              <span class="chip">$150 / night</span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="room-media">Suite • 301</div>
+            <div class="row" style="justify-content:space-between;margin-top:8px">
+              <span class="badge-status bad"><span aria-hidden="true">●</span> Occupied</span>
+              <span class="chip">$220 / night</span>
+            </div>
+          </div>
+        </div>
+        <div class="notice" style="margin-top:10px">Demo only: data is stored in your browser. Use the Admin section to see and manage sample reservations.</div>
+      </div>
+    </section>
+
+    <section id="rooms" class="section" aria-labelledby="rooms-title">
+      <div class="row" style="align-items:baseline;justify-content:space-between;gap:16px">
+        <div>
+          <h2 id="rooms-title">Rooms & Suites</h2>
+          <p class="muted">Pick your perfect stay. Live availability reflects current bookings.</p>
+        </div>
+        <div class="filters" role="group" aria-label="Room filters">
+          <label>
+            <span class="sr-only">Type</span>
+            <select id="filterType" aria-label="Filter by room type">
+              <option value="">All types</option>
+            </select>
+          </label>
+          <label>
+            <span class="sr-only">Capacity</span>
+            <select id="filterCap" aria-label="Filter by capacity">
+              <option value="">Any capacity</option>
+              <option value="1">1+ guests</option>
+              <option value="2">2+ guests</option>
+              <option value="3">3+ guests</option>
+              <option value="4">4+ guests</option>
+            </select>
+          </label>
+          <button class="btn" id="resetFilters" type="button">Reset</button>
+        </div>
+      </div>
+
+      <div id="roomsGrid" class="grid rooms" aria-live="polite"></div>
+    </section>
+
+    <section id="amenities" class="section" aria-labelledby="amenities-title">
+      <h2 id="amenities-title">Signature amenities</h2>
+      <div class="grid" style="grid-template-columns: repeat(4, 1fr)">
+        <div class="card">
+          <div class="row" style="gap:10px;align-items:center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12h18M4 8h16l1 4-1 4H4l-1-4 1-4Z"/><path d="M14 12h6"/></svg>
+            <strong>Rooftop Pool</strong>
+          </div>
+          <p class="muted">Heated infinity edge with skyline views.</p>
+        </div>
+        <div class="card">
+          <div class="row" style="gap:10px;align-items:center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 21v-7a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v7"/><path d="M7 8a5 5 0 1 1 10 0"/></svg>
+            <strong>Spa & Sauna</strong>
+          </div>
+          <p class="muted">Full-service wellness with private suites.</p>
+        </div>
+        <div class="card">
+          <div class="row" style="gap:10px;align-items:center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 4h18M3 10h18M3 16h18M3 21h18"/></svg>
+            <strong>High-speed Wi‑Fi</strong>
+          </div>
+          <p class="muted">Fiber-backed network throughout the hotel.</p>
+        </div>
+        <div class="card">
+          <div class="row" style="gap:10px;align-items:center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12h18"/><path d="M12 3v18"/></svg>
+            <strong>24/7 Concierge</strong>
+          </div>
+          <p class="muted">From dining to transport, we're here anytime.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="booking" class="section" aria-labelledby="booking-title">
+      <div class="split">
+        <div>
+          <h2 id="booking-title">Book your stay</h2>
+          <form id="bookingForm" class="card" autocomplete="on" novalidate>
+            <div class="row" style="gap:14px">
+              <label style="flex:1">
+                Full name
+                <input class="input" id="guestName" name="name" placeholder="Alex Morgan" required />
+              </label>
+              <label style="flex:1">
+                Email
+                <input class="input" id="guestEmail" name="email" type="email" placeholder="alex@email.com" required />
+              </label>
+            </div>
+            <div class="row" style="gap:14px">
+              <label style="flex:1">
+                Phone (optional)
+                <input class="input" id="guestPhone" name="phone" type="tel" placeholder="+1 555 0123" />
+              </label>
+              <label style="flex:1">
+                Guests
+                <select class="input" id="guests" name="guests" required>
+                  <option value="1">1 guest</option>
+                  <option value="2" selected>2 guests</option>
+                  <option value="3">3 guests</option>
+                  <option value="4">4 guests</option>
+                </select>
+              </label>
+            </div>
+            <div class="row" style="gap:14px">
+              <label style="flex:1">
+                Check-in
+                <input class="input" id="checkIn" name="checkIn" type="date" required />
+              </label>
+              <label style="flex:1">
+                Check-out
+                <input class="input" id="checkOut" name="checkOut" type="date" required />
+              </label>
+            </div>
+            <div class="row" style="gap:14px">
+              <label style="flex:1">
+                Room type
+                <select class="input" id="roomType" name="roomType" required></select>
+              </label>
+              <div class="est" style="flex:1">
+                <div class="row" style="justify-content:space-between">
+                  <strong>Estimator</strong>
+                  <span class="chip" id="nightsChip">0 nights</span>
+                </div>
+                <div class="row" style="justify-content:space-between">
+                  <span>Base rate</span> <span id="baseRate">$0</span>
+                </div>
+                <div class="row" style="justify-content:space-between">
+                  <span>Taxes & fees</span> <span id="taxes">$0</span>
+                </div>
+                <div class="row" style="justify-content:space-between">
+                  <strong>Total</strong> <strong id="total">$0</strong>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <button class="btn" id="checkBtn" type="button">Check availability</button>
+              <button class="btn primary" id="confirmBtn" type="submit" disabled>Confirm booking</button>
+              <span id="bookingMsg" class="hint" role="status" aria-live="polite"></span>
+            </div>
+          </form>
+          <div class="notice" style="margin-top:10px">
+            Tip: Availability is assigned automatically across rooms of the selected type. No payment is processed in this demo.
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <h3 style="margin:0 0 8px">Your reservation</h3>
+            <div id="reservationSummary" class="muted">Fill the form to preview your reservation details and assigned room.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin" class="section" aria-labelledby="admin-title">
+      <h2 id="admin-title">Admin dashboard</h2>
+      <div id="adminLogin" class="admin-card">
+        <div class="row" style="align-items:center;gap:12px">
+          <label>
+            PIN
+            <input class="input" id="adminPin" type="password" placeholder="Enter admin PIN" inputmode="numeric" />
+          </label>
+          <button class="btn warn" id="adminLoginBtn" type="button">Unlock</button>
+          <span class="hint">Default PIN: 4242</span>
+        </div>
+        <div id="adminLoginMsg" class="hint error" role="status" aria-live="polite"></div>
+      </div>
+
+      <div id="adminPanel" hidden>
+        <div class="stat-cards" style="margin:12px 0 18px">
+          <div class="stat">
+            <h3>Total rooms</h3>
+            <div class="val" id="statTotalRooms">—</div>
+          </div>
+          <div class="stat">
+            <h3>Available today</h3>
+            <div class="val" id="statAvailable">—</div>
+          </div>
+          <div class="stat">
+            <h3>Occupied today</h3>
+            <div class="val" id="statOccupied">—</div>
+          </div>
+          <div class="stat">
+            <h3>Check-ins today</h3>
+            <div class="val" id="statCheckins">—</div>
+          </div>
+        </div>
+
+        <div class="row" style="justify-content:space-between;align-items:center;margin:8px 0 8px">
+          <h3 style="margin:0">Bookings</h3>
+          <div class="row">
+            <button class="btn" id="exportBtn" type="button">Export JSON</button>
+            <button class="btn danger" id="clearBtn" type="button" title="Clears all bookings in this browser">Clear bookings</button>
+          </div>
+        </div>
+
+        <div class="card" style="overflow:auto">
+          <table aria-describedby="admin-title">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Guest</th>
+                <th>Room</th>
+                <th>Type</th>
+                <th>Dates</th>
+                <th>Nights</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bookingsTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container row" style="justify-content:space-between">
+      <div>&copy; <span id="year"></span> Aurora Hotel</div>
+      <div class="hint">Demo app — data is stored locally in your browser</div>
+    </div>
+  </footer>
+
+  <script>
+    // Demo data and storage keys
+    const LS_ROOMS = 'hm_rooms_v1';
+    const LS_BOOKINGS = 'hm_bookings_v1';
+    const SS_ADMIN = 'hm_admin_session_v1';
+    const ADMIN_PIN = '4242';
+    const TAX_RATE = 0.1; // 10%
+
+    let rooms = [];
+    let bookings = [];
+
+    // Utilities
+    const todayStr = () => new Date().toISOString().slice(0,10);
+    const toDate = (s) => { const d = new Date(s + 'T12:00:00'); return d; } // noon to avoid DST issues
+    const fmtMoney = (n) => `$${n.toFixed(2)}`;
+    const nightsBetween = (a, b) => {
+      const ms = toDate(b) - toDate(a);
+      return Math.max(0, Math.round(ms / (1000*60*60*24)));
+    };
+    const rangesOverlap = (aStart, aEnd, bStart, bEnd) => {
+      return (toDate(aStart) < toDate(bEnd)) && (toDate(bStart) < toDate(aEnd));
+    };
+    const uid = (p='B') => p + Math.random().toString(36).slice(2,8) + Date.now().toString(36).slice(-4);
+
+    // Storage
+    function loadState(){
+      const r = localStorage.getItem(LS_ROOMS);
+      const b = localStorage.getItem(LS_BOOKINGS);
+      if(r){
+        rooms = JSON.parse(r);
+      }else{
+        rooms = seedRooms();
+        localStorage.setItem(LS_ROOMS, JSON.stringify(rooms));
+      }
+      bookings = b ? JSON.parse(b) : [];
+    }
+    function saveBookings(){ localStorage.setItem(LS_BOOKINGS, JSON.stringify(bookings)); }
+
+    function seedRooms(){
+      return [
+        { id:'101', type:'Standard', capacity:2, rate:100 },
+        { id:'102', type:'Standard', capacity:2, rate:100 },
+        { id:'103', type:'Standard', capacity:2, rate:105 },
+        { id:'201', type:'Deluxe', capacity:3, rate:150 },
+        { id:'202', type:'Deluxe', capacity:3, rate:155 },
+        { id:'301', type:'Suite', capacity:4, rate:220 },
+        { id:'302', type:'Suite', capacity:4, rate:230 }
+      ];
+    }
+
+    // Availability and status
+    function isRoomOccupiedToday(roomId){
+      const t0 = todayStr();
+      const t1 = new Date(toDate(t0).getTime() + 24*60*60*1000).toISOString().slice(0,10);
+      return bookings.some(b => b.status==='confirmed' && b.roomId===roomId && rangesOverlap(b.checkIn, b.checkOut, t0, t1));
+    }
+    function roomHasOverlap(roomId, checkIn, checkOut){
+      return bookings.some(b => b.status==='confirmed' && b.roomId===roomId && rangesOverlap(b.checkIn, b.checkOut, checkIn, checkOut));
+    }
+    function findAvailableRoom(type, guests, checkIn, checkOut){
+      const candidates = rooms.filter(r => r.type===type && r.capacity >= guests)
+                              .sort((a,b)=>a.rate-b.rate);
+      for(const r of candidates){
+        if(!roomHasOverlap(r.id, checkIn, checkOut)){
+          return r;
+        }
+      }
+      return null;
+    }
+    function typeOptions(){
+      const types = [...new Set(rooms.map(r=>r.type))];
+      return types.sort();
+    }
+    function rateForType(type, guests=1){
+      const cands = rooms.filter(r=>r.type===type && r.capacity>=guests);
+      if(!cands.length) return 0;
+      return Math.min(...cands.map(r=>r.rate));
+    }
+
+    // Rendering
+    function renderRooms(){
+      const grid = document.getElementById('roomsGrid');
+      grid.innerHTML = '';
+      const t = document.getElementById('filterType').value;
+      const c = parseInt(document.getElementById('filterCap').value || '0', 10);
+      const list = rooms.filter(r => (!t || r.type===t) && (!c || r.capacity>=c));
+      list.sort((a,b)=> a.type.localeCompare(b.type) || a.id.localeCompare(b.id));
+      for(const r of list){
+        const occupied = isRoomOccupiedToday(r.id);
+        const card = document.createElement('div');
+        card.className='card';
+        card.innerHTML = `
+          <div class="room-media" aria-label="${r.type} room ${r.id}">
+            ${r.type} • ${r.id}
+          </div>
+          <div class="row" style="justify-content:space-between;margin-top:10px">
+            <div class="badge-status ${occupied?'bad':'ok'}" aria-live="polite">
+              <span aria-hidden="true">●</span> ${occupied? 'Occupied' : 'Available'}
+            </div>
+            <div class="row" style="gap:8px;align-items:center">
+              <span class="chip">${r.capacity} guest${r.capacity>1?'s':''}</span>
+              <span class="chip">${fmtMoney(r.rate)} / night</span>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      }
+      if(!list.length){
+        const empty = document.createElement('div');
+        empty.className='notice';
+        empty.textContent = 'No rooms match your filters.';
+        grid.appendChild(empty);
+      }
+    }
+
+    function populateSelectors(){
+      const typeSel = document.getElementById('roomType');
+      const filterType = document.getElementById('filterType');
+      typeSel.innerHTML = '';
+      filterType.innerHTML = '<option value="">All types</option>';
+      for(const t of typeOptions()){
+        const opt1 = document.createElement('option');
+        opt1.value = t; opt1.textContent = t;
+        typeSel.appendChild(opt1);
+        const opt2 = document.createElement('option');
+        opt2.value = t; opt2.textContent = t;
+        filterType.appendChild(opt2);
+      }
+      // Select first by default
+      if(typeSel.options.length) typeSel.selectedIndex = 0;
+    }
+
+    function renderStats(){
+      const total = rooms.length;
+      const occupied = rooms.filter(r=>isRoomOccupiedToday(r.id)).length;
+      const available = total - occupied;
+      const checkins = bookings.filter(b => b.status==='confirmed' && b.checkIn===todayStr()).length;
+      document.getElementById('statTotalRooms').textContent = total;
+      document.getElementById('statAvailable').textContent = available;
+      document.getElementById('statOccupied').textContent = occupied;
+      document.getElementById('statCheckins').textContent = checkins;
+    }
+
+    function renderBookingsTable(){
+      const tbody = document.getElementById('bookingsTbody');
+      tbody.innerHTML = '';
+      const rows = [...bookings].sort((a,b)=> toDate(a.checkIn)-toDate(b.checkIn)).reverse();
+      if(!rows.length){
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="9" class="muted" style="padding:14px 12px;border-radius:12px;text-align:center">No bookings yet.</td>`;
+        tbody.appendChild(tr);
+        return;
+      }
+      for(const b of rows){
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><code>${b.id}</code></td>
+          <td>${escapeHtml(b.guest.name)}<div class="hint">${escapeHtml(b.guest.email)}</div></td>
+          <td>${b.roomId}</td>
+          <td>${b.type}</td>
+          <td>${b.checkIn} → ${b.checkOut}</td>
+          <td style="text-align:center">${b.nights}</td>
+          <td>${fmtMoney(b.total)}</td>
+          <td>${b.status}</td>
+          <td>
+            <div class="row">
+              <button class="btn" data-act="view" data-id="${b.id}">View</button>
+              ${b.status==='confirmed' ? `<button class="btn danger" data-act="cancel" data-id="${b.id}">Cancel</button>` : ''}
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+    }
+
+    // Booking UI logic
+    function setMinDates(){
+      const ci = document.getElementById('checkIn');
+      const co = document.getElementById('checkOut');
+      const t = todayStr();
+      ci.min = t;
+      if(!ci.value || ci.value < t) ci.value = t;
+      const next = new Date(toDate(ci.value).getTime() + 24*60*60*1000).toISOString().slice(0,10);
+      co.min = next;
+      if(!co.value || co.value <= ci.value) co.value = next;
+    }
+
+    function updateEstimator(){
+      const type = document.getElementById('roomType').value;
+      const guests = parseInt(document.getElementById('guests').value,10);
+      const ci = document.getElementById('checkIn').value;
+      const co = document.getElementById('checkOut').value;
+      const nights = (ci && co) ? nightsBetween(ci, co) : 0;
+      const baseRate = type ? rateForType(type, guests) : 0;
+      const subtotal = baseRate * Math.max(1, nights);
+      const taxes = subtotal * TAX_RATE;
+      const total = subtotal + taxes;
+
+      document.getElementById('nightsChip').textContent = `${nights} night${nights===1?'':'s'}`;
+      document.getElementById('baseRate').textContent = fmtMoney(subtotal);
+      document.getElementById('taxes').textContent = fmtMoney(taxes);
+      document.getElementById('total').textContent = fmtMoney(total);
+
+      // reset confirmation state
+      document.getElementById('confirmBtn').disabled = true;
+      document.getElementById('bookingMsg').textContent = '';
+      document.getElementById('reservationSummary').textContent = 'Fill the form to preview your reservation details and assigned room.';
+    }
+
+    function checkAvailability(){
+      const msg = document.getElementById('bookingMsg');
+      const name = document.getElementById('guestName').value.trim();
+      const email = document.getElementById('guestEmail').value.trim();
+      const guests = parseInt(document.getElementById('guests').value,10);
+      const type = document.getElementById('roomType').value;
+      const ci = document.getElementById('checkIn').value;
+      const co = document.getElementById('checkOut').value;
+      const nights = nightsBetween(ci, co);
+      if(!name || !email || !type || !ci || !co || nights<1){
+        msg.textContent = 'Please complete guest, dates, and room type.';
+        msg.className = 'hint error';
+        return null;
+      }
+      const room = findAvailableRoom(type, guests, ci, co);
+      if(!room){
+        msg.textContent = 'No rooms available for the selected criteria.';
+        msg.className = 'hint error';
+        document.getElementById('confirmBtn').disabled = true;
+        document.getElementById('reservationSummary').textContent = 'Try different dates or room type.';
+        return null;
+      }
+      // Preview summary
+      const rate = room.rate;
+      const subtotal = rate * nights;
+      const taxes = subtotal * TAX_RATE;
+      const total = subtotal + taxes;
+      const summary = `
+        <ul>
+          <li><strong>Guest:</strong> ${escapeHtml(name)} (${escapeHtml(email)})</li>
+          <li><strong>Room:</strong> ${room.type} • ${room.id} (up to ${room.capacity} guests)</li>
+          <li><strong>Dates:</strong> ${ci} → ${co} (${nights} night${nights===1?'':'s'})</li>
+          <li><strong>Rate:</strong> ${fmtMoney(rate)} / night</li>
+          <li><strong>Total:</strong> ${fmtMoney(total)} (incl. taxes)</li>
+        </ul>
+      `;
+      document.getElementById('reservationSummary').innerHTML = summary;
+      document.getElementById('confirmBtn').disabled = false;
+      msg.textContent = 'Room available. Review and confirm your booking.';
+      msg.className = 'hint success';
+      // Return computed plan so submit handler can finalize without re-finding
+      return { room, ci, co, nights, rate, total };
+    }
+
+    function confirmBooking(plan){
+      const name = document.getElementById('guestName').value.trim();
+      const email = document.getElementById('guestEmail').value.trim();
+      const phone = document.getElementById('guestPhone').value.trim();
+      const guests = parseInt(document.getElementById('guests').value,10);
+      const type = document.getElementById('roomType').value;
+      const id = uid('B');
+      const rec = {
+        id,
+        guest: { name, email, phone },
+        roomId: plan.room.id,
+        type,
+        guests,
+        checkIn: plan.ci,
+        checkOut: plan.co,
+        nights: plan.nights,
+        rate: plan.rate,
+        taxRate: TAX_RATE,
+        total: plan.total,
+        status: 'confirmed',
+        createdAt: new Date().toISOString()
+      };
+      bookings.push(rec);
+      saveBookings();
+      renderRooms();
+      renderStats();
+      renderBookingsTable();
+
+      const msg = document.getElementById('bookingMsg');
+      msg.textContent = `Booking confirmed. Reference: ${id}`;
+      msg.className = 'hint success';
+      document.getElementById('confirmBtn').disabled = true;
+
+      // Scroll to Admin bookings if unlocked
+      if(!document.getElementById('adminPanel').hasAttribute('hidden')){
+        document.getElementById('bookingsTbody').parentElement.parentElement.scrollIntoView({behavior:'smooth'});
+      }
+    }
+
+    // Admin auth
+    function tryUnlock(){
+      const pin = document.getElementById('adminPin').value.trim();
+      const msg = document.getElementById('adminLoginMsg');
+      if(pin === ADMIN_PIN){
+        sessionStorage.setItem(SS_ADMIN,'1');
+        msg.textContent = '';
+        showAdmin(true);
+      }else{
+        msg.textContent = 'Invalid PIN.';
+      }
+    }
+    function showAdmin(on){
+      document.getElementById('adminLogin').hidden = !!on;
+      const panel = document.getElementById('adminPanel');
+      if(on){ panel.removeAttribute('hidden'); renderStats(); renderBookingsTable(); }
+      else{ panel.setAttribute('hidden',''); }
+    }
+
+    // Export helpers
+    function exportJson(){
+      const data = { exportedAt: new Date().toISOString(), rooms, bookings };
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'aurora-hotel-data.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function clearBookings(){
+      if(!confirm('This will remove all bookings stored in this browser. Continue?')) return;
+      bookings = [];
+      saveBookings();
+      renderRooms(); renderStats(); renderBookingsTable();
+    }
+
+    // Event wiring
+    function wireEvents(){
+      // Filters
+      document.getElementById('filterType').addEventListener('change', renderRooms);
+      document.getElementById('filterCap').addEventListener('change', renderRooms);
+      document.getElementById('resetFilters').addEventListener('click', () => {
+        document.getElementById('filterType').value = '';
+        document.getElementById('filterCap').value = '';
+        renderRooms();
+      });
+
+      // Booking
+      ['roomType','guests','checkIn','checkOut'].forEach(id=>{
+        document.getElementById(id).addEventListener('change', () => {
+          if(id==='checkIn') setMinDates();
+          updateEstimator();
+        });
+      });
+      document.getElementById('checkBtn').addEventListener('click', () => {
+        const plan = checkAvailability();
+        // Cache plan for next submit
+        window._lastPlan = plan;
+      });
+      document.getElementById('bookingForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if(!window._lastPlan){
+          const plan = checkAvailability();
+          if(!plan) return;
+          window._lastPlan = plan;
+        }
+        confirmBooking(window._lastPlan);
+        window._lastPlan = null;
+      });
+
+      // Admin
+      document.getElementById('adminLoginBtn').addEventListener('click', tryUnlock);
+      document.getElementById('adminPin').addEventListener('keydown', (e)=>{ if(e.key==='Enter') tryUnlock(); });
+      document.getElementById('exportBtn').addEventListener('click', exportJson);
+      document.getElementById('clearBtn').addEventListener('click', clearBookings);
+
+      // Bookings table actions
+      document.getElementById('bookingsTbody').addEventListener('click', (e)=>{
+        const btn = e.target.closest('button[data-act]');
+        if(!btn) return;
+        const id = btn.getAttribute('data-id');
+        const act = btn.getAttribute('data-act');
+        const rec = bookings.find(b=>b.id===id);
+        if(!rec) return;
+        if(act==='view'){
+          alert(`Booking ${rec.id}\nGuest: ${rec.guest.name}\nRoom: ${rec.type} • ${rec.roomId}\nDates: ${rec.checkIn} → ${rec.checkOut}\nTotal: ${fmtMoney(rec.total)}\nStatus: ${rec.status}`);
+        }else if(act==='cancel'){
+          if(!confirm(`Cancel booking ${rec.id}?`)) return;
+          rec.status = 'cancelled';
+          saveBookings();
+          renderRooms(); renderStats(); renderBookingsTable();
+        }
+      });
+
+      // Footer year
+      document.getElementById('year').textContent = new Date().getFullYear();
+    }
+
+    // Init
+    function init(){
+      loadState();
+      populateSelectors();
+      setMinDates();
+      updateEstimator();
+      renderRooms();
+      // Admin auto unlock if session exists
+      const unlocked = sessionStorage.getItem(SS_ADMIN)==='1';
+      showAdmin(unlocked);
+      wireEvents();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
